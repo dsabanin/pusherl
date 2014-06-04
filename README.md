@@ -1,5 +1,17 @@
 I always do the README last, so I apologize for the docs being crappy. This implementation however, is very straight forward.
 
+### Usage
+
+```erlang
+%% If you wish to perform synchronous pushes:
+gen_server:call(pusherl_server, {push, {"ChannelName", "EventName", "Payload"}}).
+	
+%% If you wish to perform asynchronous pushes:
+gen_server:cast(pusherl_server, {push, {"ChannelName", "EventName", "Payload"}}).
+```
+
+### Setup
+
 This application is running atop Basho's rebar. Therefore, you can get a simple terminal-version running by following these directions:
 
 1. Look in src/pusherl.app.src and replace the configurable pusher application variables with your application's credentials.
@@ -34,16 +46,8 @@ You will want to change it to this
 
 Yes, include the comma at the end.
 
-USAGE
+### Dependencies
 
-```erlang
-%% If you wish to perform synchronous pushes:
-gen_server:call(pusherl_server, {push, {"ChannelName", "EventName", "Payload"}}).
-	
-%% If you wish to perform asynchronous pushes:
-gen_server:cast(pusherl_server, {push, {"ChannelName", "EventName", "Payload"}}).
-```
-
-This application includes mochiweb for it's fantastic json de/encoding. I have not yet extensively tested that it works in all cases with json.
+This application includes [mochiweb](https://github.com/mochi/MochiWeb) for it's fantastic json de/encoding. I have not yet extensively tested that it works in all cases with json.
 
 Thanks.
