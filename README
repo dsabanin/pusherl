@@ -27,10 +27,10 @@ Yes, include the comma at the end.
 USAGE
 
 If you wish to perform synchronous pushes:
-	gen_server:call({push, {"ChannelName", "EventName", "Payload"}}).
+	gen_server:call(pusherl_server, {push, {"ChannelName", "EventName", "Payload"}}).
 	
-If you wish to perform asynchronous pushes (this is asynchronous at the gen_server level, not the httpc level...yet):
-	gen_server:cast({push, {"ChannelName", "EventName", "Payload"}}).
+If you wish to perform asynchronous pushes:
+	gen_server:cast(pusherl_server, {push, {"ChannelName", "EventName", "Payload"}}).
 	
 This application includes mochiweb for it's fantastic json de/encoding. I have not yet extensively tested that it works in all cases with json.
 
