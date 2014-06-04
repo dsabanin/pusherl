@@ -1,6 +1,7 @@
 -module(pusherl_server).
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
+-define(CAST_REQ_TIMEOUT, 5000).
 -define(JP, fun(K,V) -> string:join([K,V],"=") end).
 
 -record(state,{app_id, key, secret}).
@@ -9,7 +10,7 @@
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--export([start_link/0]).
+-export([start_link/0, cast_request/4]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Exports
@@ -43,10 +44,9 @@ handle_call(_Request, _From, State) ->
   {noreply, ok, State}.
 
 handle_cast({push, {ChannelName, EventName, Payload}}, State) ->
-  case http_request(ChannelName, EventName, Payload, State) of
-    {ok, _} -> {noreply, ok, State};
-    {error, _} -> {noreply, error, State}
-  end;
+  ReqPid = proc_lib:spawn_link(?MODULE, cast_request, [ChannelName, EventName, Payload, State]),
+  timer:exit_after(?CAST_REQ_TIMEOUT, ReqPid, timeout),
+  {noreply, State};
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
@@ -62,6 +62,9 @@ code_change(_OldVsn, State, _Extra) ->
 %% ------------------------------------------------------------------
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
+cast_request(ChannelName, EventName, Payload, State) ->
+  {ok, _} = http_request(ChannelName, EventName, Payload, State).
+
 http_request(ChannelName, EventName, Payload, Config) when is_list(ChannelName), is_record(Config, state) ->
   {ok, ReqProps} = http_request_props(Payload, EventName, ChannelName, Config),
 	httpc:request(post, ReqProps, [], []).
